@@ -4,8 +4,9 @@
  */
 package com.github.watera.algo.expression;
 
+import com.github.watera.algo.stack.CharStack;
+
 import java.util.NoSuchElementException;
-import java.util.Stack;
 
 public abstract class AbstractSuffixExpr {
 
@@ -22,7 +23,7 @@ public abstract class AbstractSuffixExpr {
     private String toSuffix(char[] input) {
         char[] out = new char[input.length * 2];
         int outIndex = 0;
-        Stack<Character> opStack = new Stack<Character>();
+        CharStack opStack = new CharStack();
         for (char ch : input) {
             if (isNumber(ch)) {
                 out[outIndex++] = ch;
@@ -37,8 +38,7 @@ public abstract class AbstractSuffixExpr {
                 out[outIndex++] = ' ';
             } else if (isEnd(ch)) {
                 char begin = getBegin(ch);
-                while (!opStack.empty() && !opStack.lastElement()
-                        .equals(begin)) {
+                while (!opStack.empty() && opStack.lastElement() != begin) {
                     out[outIndex++] = ' ';
                     out[outIndex++] = opStack.pop();
                 }
