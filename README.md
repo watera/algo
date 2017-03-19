@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/watera/algo.svg?branch=master)](https://travis-ci.org/watera/algo)
+[![Build Status](https://travis-ci.org/watera/algo.svg?branch=trunk)](https://travis-ci.org/watera/algo)
 
 # Examples of Algorithms
 
