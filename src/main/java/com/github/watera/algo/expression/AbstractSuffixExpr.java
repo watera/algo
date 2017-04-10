@@ -50,7 +50,7 @@ public abstract class AbstractSuffixExpr {
             }
         }
         while (!opStack.empty()) {
-            Character pop = opStack.pop();
+            char pop = opStack.pop();
             if (!isOperator(pop)) {
                 throw new IllegalStateException("Only expect operator here.");
             }
