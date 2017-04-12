@@ -16,44 +16,47 @@ public final class Ipv4WhiteList {
     private final int[] begins;
     private final int[] ends;
 
-    // alpha
-    public static Ipv4WhiteList build(List<String> confs) {
-        List<Range> srcRanges = new ArrayList<Range>();
-        for (String conf : confs) {
-            srcRanges.add(textToRange(conf));
+    Ipv4WhiteList(int[] begins, int[] ends) {
+        int length = begins.length;
+        assert length == ends.length;
+        for (int i = 0; i < length; i++) {
+            assert begins[i] <= ends[i];
         }
-        Collections.sort(srcRanges);
-        List<Range> inputRanges = merge(srcRanges);
+        for (int i = 1; i < length; i++) {
+            assert begins[i - 1] <= begins[i];
+            assert ends[i - 1] <= ends[i];
+        }
+        this.begins = begins;
+        this.ends = ends;
+    }
+
+    public static Ipv4WhiteList build(List<String> confs) {
+        List<Range> inputRanges = mapToRanges(confs);
         int length = inputRanges.size();
         int[] begins = new int[length];
         int[] ends = new int[length];
         int index = 0;
+        int maxEnd = Integer.MIN_VALUE;
         for (Range r : inputRanges) {
             begins[index] = r.begin;
-            ends[index] = r.end;
+            if (r.end >= maxEnd) {
+                ends[index] = r.end;
+            } else {
+                ends[index] = maxEnd;
+                maxEnd = r.end;
+            }
             index++;
         }
         return new Ipv4WhiteList(begins, ends);
     }
 
-    // todo
-    private static List<Range> merge(List<Range> confs) {
-        return confs;
-    }
-
-    Ipv4WhiteList(int[] begins, int[] ends) {
-        this.begins = begins;
-        this.ends = ends;
-    }
-
-    public boolean matches(final int ipv4) {
-        final int index = Arrays.binarySearch(begins, ipv4);
-        // found in begins or (found in ranges)
-        return index >= 0 || (index != -1 && ipv4 <= ends[-2 - index]);
-    }
-
-    public boolean matches(final String ipv4) {
-        return matches(bytesToInt(IPAddressUtil.textToNumericFormatV4(ipv4)));
+    private static List<Range> mapToRanges(List<String> confs) {
+        List<Range> inputRanges = new ArrayList<Range>();
+        for (String conf : confs) {
+            inputRanges.add(textToRange(conf));
+        }
+        Collections.sort(inputRanges);
+        return inputRanges;
     }
 
     private static int bytesToInt(byte[] addr) {
@@ -95,6 +98,16 @@ public final class Ipv4WhiteList {
 
     private static byte textToByte(String text) {
         return (byte) (Integer.parseInt(text));
+    }
+
+    public boolean matches(final int ipv4) {
+        final int index = Arrays.binarySearch(begins, ipv4);
+        // found in begins or (found in ranges)
+        return index >= 0 || (index != -1 && ipv4 <= ends[-2 - index]);
+    }
+
+    public boolean matches(final String ipv4) {
+        return matches(bytesToInt(IPAddressUtil.textToNumericFormatV4(ipv4)));
     }
 
     private static class Range implements Comparable<Range> {
