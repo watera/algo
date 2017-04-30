@@ -4,6 +4,7 @@
  */
 package com.github.watera.algo.whitelist;
 
+import com.github.watera.algo.Range;
 import sun.net.util.IPAddressUtil;
 
 import java.util.ArrayList;
@@ -38,12 +39,12 @@ public final class Ipv4WhiteList {
         int index = 0;
         int maxEnd = Integer.MIN_VALUE;
         for (Range r : inputRanges) {
-            begins[index] = r.begin;
-            if (r.end >= maxEnd) {
-                ends[index] = r.end;
+            begins[index] = r.getBegin();
+            if (r.getEnd() >= maxEnd) {
+                ends[index] = r.getEnd();
             } else {
                 ends[index] = maxEnd;
-                maxEnd = r.end;
+                maxEnd = r.getEnd();
             }
             index++;
         }
@@ -110,19 +111,4 @@ public final class Ipv4WhiteList {
         return matches(bytesToInt(IPAddressUtil.textToNumericFormatV4(ipv4)));
     }
 
-    private static class Range implements Comparable<Range> {
-        private final int begin;
-        private final int end;
-
-        @SuppressWarnings("Since15")
-        Range(int begin, int end) {
-            this.begin = Integer.min(begin, end);
-            this.end = Integer.max(begin, end);
-        }
-
-        @SuppressWarnings("Since15")
-        public int compareTo(Range o) {
-            return Integer.compare(this.begin, o.begin);
-        }
-    }
 }
